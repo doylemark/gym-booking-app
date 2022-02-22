@@ -9,11 +9,15 @@
   },
   "dependencies": {
     "react": "^18.0.0-beta-24dd07bd2-20211208",
-    "react-dom": "^18.0.0-beta-24dd07bd2-20211208"
+    "react-dom": "^18.0.0-beta-24dd07bd2-20211208",
+    "suspend-react": "0.0.8",
+    "swr": "^1.2.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
+    "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react": "^1.0.7",
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.6",

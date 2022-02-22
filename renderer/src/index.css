@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: Inter;
+  font-weight: 400;
+  src: url("./fonts/Inter-Regular.ttf");
+}
+
+@font-face {
+  font-family: Inter;
+  font-weight: 500;
+  src: url("./fonts/Inter-SemiBold.ttf");
+}

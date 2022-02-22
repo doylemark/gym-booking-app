@@ -7,6 +7,23 @@ const createWindow = () => {
     height: 700,
   });
 
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    (details, callback) => {
+      callback({ requestHeaders: { Origin: "*", ...details.requestHeaders } });
+    }
+  );
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          "Access-Control-Allow-Origin": "*",
+          ...details.responseHeaders,
+        },
+      });
+    }
+  );
+
   // and load the index.html of the app.
   // mainWindow.loadFile("index.html");
   mainWindow.loadURL("http://localhost:3000");
