@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^1.0.5",
+    "@tailwindcss/forms": "^0.4.0",
     "react": "^18.0.0-beta-24dd07bd2-20211208",
     "react-dom": "^18.0.0-beta-24dd07bd2-20211208",
     "suspend-react": "0.0.8",

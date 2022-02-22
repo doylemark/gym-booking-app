@@ -8,6 +8,7 @@ import {
   getToken,
   Session,
 } from "../../lib/gym-sessions";
+import type { GymFilter } from "../App";
 
 type GymData = {
   sessions: Session[];
@@ -30,13 +31,22 @@ const gymDataFetcher = (url: string): Promise<GymData> => {
   });
 };
 
+const timeFmt = (d: Date) => {
+  return new Intl.DateTimeFormat("en-us", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  }).format(d);
+};
+
 type BookingsProps = {
   url: string;
   setDays: (s: string[]) => void;
   activeDay: number;
+  filter: GymFilter;
 };
 
-const Bookings = ({ url, setDays, activeDay }: BookingsProps) => {
+const Bookings = ({ url, setDays, activeDay, filter }: BookingsProps) => {
   const data = suspend(() => gymDataFetcher(url), ["bookingState"]);
 
   useEffect(() => {
@@ -44,40 +54,37 @@ const Bookings = ({ url, setDays, activeDay }: BookingsProps) => {
   }, [data.days, setDays]);
 
   return (
-    <>
-      <ol className="flex flex-col gap-6 p-6">
-        {data.sessions.map((session) => (
-          <li
-            key={session.id}
-            className="flex justify-between items-center p-4 border shadow rounded-lg"
-          >
-            <div>
-              <p className="text-lg flex items-center gap-1">
-                <span className="text-xl">
-                  {session.location.includes("Poolside") ? "🏖" : ""}
-                </span>
-                {session.location}{" "}
-              </p>
-              <p className="text-gray-800">
-                {new Intl.DateTimeFormat("en-us", {
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: false,
-                }).format(new Date(data.days[activeDay] + "-" + session.time))}
-              </p>
-            </div>
-            <button
-              className={clsx(
-                "bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md text-white focus:outline-none",
-                "focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white"
-              )}
+    <ol className="flex flex-col gap-6 p-6 w-full">
+      {data.sessions
+        .filter(({ location }) => location.includes(filter))
+        .map((session) => {
+          const startDate = new Date(data.days[activeDay] + "-" + session.time);
+          const endDate = new Date(startDate.getTime() + 75 * 60000);
+          return (
+            <li
+              key={session.id}
+              className="flex justify-between items-center p-4 border shadow rounded-lg"
             >
-              Schedule for Booking
-            </button>
-          </li>
-        ))}
-      </ol>
-    </>
+              <div>
+                <p className="text-gray-900 text-lg flex items-center">
+                  {session.location}
+                </p>
+                <p className="text-gray-700">
+                  {timeFmt(startDate)} - {timeFmt(endDate)}
+                </p>
+              </div>
+              <button
+                className={clsx(
+                  "bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-md text-white focus:outline-none",
+                  "focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-white"
+                )}
+              >
+                Schedule for Booking
+              </button>
+            </li>
+          );
+        })}
+    </ol>
   );
 };
 

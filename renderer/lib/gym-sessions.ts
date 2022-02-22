@@ -18,7 +18,14 @@ const sessionFromRow = (cells: HTMLTableCellElement[]): Session => {
     if (i === 0) ctx.time = text;
     if (i === 1) ctx.className = text;
     if (i === 2) ctx.duration = text;
-    if (i === 3) ctx.location = text;
+    if (i === 3) {
+      // ucd can't spell their own gym right
+      if (text.includes("Perfomance")) {
+        ctx.location = "Performance Gym";
+      } else {
+        ctx.location = text;
+      }
+    }
     if (i === 4) ctx.classType = text;
     if (i === 5) {
       ctx.id = v4();
