@@ -1,6 +1,5 @@
-import { LocationMarkerIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect } from "react";
 import { suspend } from "suspend-react";
 
 import {
@@ -9,8 +8,6 @@ import {
   getToken,
   Session,
 } from "../../lib/gym-sessions";
-
-import Header from "./header";
 
 type GymData = {
   sessions: Session[];
@@ -33,19 +30,21 @@ const gymDataFetcher = (url: string): Promise<GymData> => {
   });
 };
 
-type BookingsProps = { url: string };
+type BookingsProps = {
+  url: string;
+  setDays: (s: string[]) => void;
+  activeDay: number;
+};
 
-const Bookings = ({ url }: BookingsProps) => {
+const Bookings = ({ url, setDays, activeDay }: BookingsProps) => {
   const data = suspend(() => gymDataFetcher(url), ["bookingState"]);
-  const [activeDay, setActiveDay] = useState(0);
+
+  useEffect(() => {
+    setDays(data.days);
+  }, [data.days, setDays]);
 
   return (
     <>
-      <Header
-        days={data.days}
-        activeDayIdx={activeDay}
-        setActiveDay={setActiveDay}
-      />
       <ol className="flex flex-col gap-6 p-6">
         {data.sessions.map((session) => (
           <li
