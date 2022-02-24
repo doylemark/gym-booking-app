@@ -2,13 +2,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
 import clsx from "clsx";
 import { useCallback } from "react";
 
-import type { GymFilter } from "../App";
+import type { GymFilter } from "../screens/home";
 
 type HeaderProps = {
   days?: string[];
   activeDayIdx: number;
   setActiveDay: (d: number) => void;
   setFilter: (f: GymFilter) => void;
+  openSchedule: () => void;
 };
 
 const Header = ({
@@ -16,6 +17,7 @@ const Header = ({
   days,
   setActiveDay,
   setFilter,
+  openSchedule,
 }: HeaderProps) => {
   const handleIncrement = useCallback(() => {
     if (days && activeDayIdx + 1 < days.length) {
@@ -31,8 +33,19 @@ const Header = ({
 
   return (
     <>
-      <div className="w-full bg-indigo-600 p-6 border-b">
+      <div className="w-full bg-indigo-600 p-6 border-b shadow-inner flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-white">Gym Bookings</h1>
+        <button
+          className={clsx(
+            "bg-white hover:bg-gray-200 px-4 py-1 rounded-md border shadow",
+            "focus:ring-1 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white focus:outline-none"
+          )}
+          onClick={openSchedule}
+        >
+          <span className="text-indigo-600 font-semibold text-sm">
+            Bookings List
+          </span>
+        </button>
       </div>
       <header className="sticky top-0 flex items-center justify-between p-6 bg-white border-b">
         <div className="flex flex-col">
