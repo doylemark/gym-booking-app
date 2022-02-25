@@ -15,6 +15,12 @@ type BookingsProps = {
   addToQueue: (s: Session) => void;
 };
 
+const scheduleLabel = (session: Session, d: Date) => {
+  if (session.isFull) return "Full";
+
+  return isBookable(d) ? "Book now" : "Schedule for Booking";
+};
+
 const Bookings = ({
   sessions,
   days,
@@ -41,11 +47,10 @@ const Bookings = ({
               onClick={() => addToQueue(session)}
               disabled={session.isFull}
             >
-              {session.isFull
-                ? "Full"
-                : isBookable(new Date(days[activeDay] + "-" + session.time))
-                ? "Book now"
-                : "Schedule for Booking"}
+              {scheduleLabel(
+                session,
+                new Date(days[activeDay] + "-" + session.time)
+              )}
             </button>
           </SessionItem>
         ))}

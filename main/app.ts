@@ -1,10 +1,16 @@
-import { app, BrowserWindow } from "electron";
+import { join } from "path";
+
+import { app, BrowserWindow, ipcMain } from "electron";
+import * as puppeteer from "puppeteer";
 
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 700,
+    webPreferences: {
+      preload: join(__dirname, "preload/preload.js"),
+    },
   });
 
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
@@ -47,4 +53,48 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+const consentBtnId = "onetrust-accept-btn-handler";
+
+const bookGymSession = async (url: string, studentId: string) => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "networkidle0" });
+
+    const consentBtn = await page.$("#" + consentBtnId);
+    await consentBtn?.click();
+
+    const idInput = await page.$("input[name='MEMBER_NO']");
+    await idInput?.type(studentId);
+
+    await page.waitForSelector("input[type='submit']");
+    const idConfirm = await page.$("input[type='submit']");
+
+    await page.waitForTimeout(500);
+
+    await idConfirm?.focus();
+    await idConfirm?.click();
+
+    await page.waitForTimeout(500);
+
+    await page.waitForSelector(".menubutton");
+    const confirmBtn = await page.$(".menubutton");
+    await confirmBtn?.click();
+
+    await page.waitForNetworkIdle();
+
+    const title = await page.title();
+    return title.includes("Confirmation");
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
+ipcMain.on("booking", async (e, ...args) => {
+  const [url, id] = args;
+  const success = await bookGymSession(url, id);
+  e.sender.send("booking-response", success);
 });

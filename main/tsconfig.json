@@ -1,10 +1,10 @@
 {
-    "extends": "@doylemark/tsconfig/tsconfig.json",
-    "compilerOptions": {
-        "noEmit": false,
-        "outDir": "../dist/main"
-    },
-    "include": [
-        "**/*.ts"
-    ],
+  "extends": "@doylemark/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "../dist/main",
+  },
+  "include": [
+    "**/*.ts"
+  ],
 }

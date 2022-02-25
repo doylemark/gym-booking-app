@@ -80,42 +80,24 @@ export const getToken = (html: string) => {
   return tokenInput.value;
 };
 
-const bookingErrors = {
-  invalidUrl:
-    "The booking URL received from UCD was invalid, please try restarting the application",
-  invalidStudentNo: "Student Number could not be found in UCD system",
-};
-
 export const bookGymSession = async (bookingUrl: string, studentNo: string) => {
-  const response = await fetch(bookingUrl);
-  const html = await response.text();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+  window.electron.book(bookingUrl, studentNo);
 
-  const params = new URLSearchParams(bookingUrl);
+  const result = await new Promise<boolean>((resolve) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    window.electron.onBookingResponse((args) => {
+      const [success] = args;
+      if (success) resolve(success as boolean);
+      console.log(success);
+    });
 
-  const token = params.get("p_parameters");
+    setTimeout(() => {
+      resolve(false);
+    }, 20000);
+  });
 
-  if (!token) throw new Error(bookingErrors.invalidUrl);
-
-  const formData = new FormData();
-
-  formData.append("p_query", "SW-GYMPROV");
-  formData.append("p_confirmed", "Y");
-  formData.append("p_parameters", getToken(html));
-  formData.append("MEMBER_NO", "21385593");
-
-  const response2 = await fetch(
-    "https://hub.ucd.ie/usis/!W_HU_REPORTING.P_RUN_SQL",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-  const data = await response2.text();
-
-  console.log(data);
-  console.log(response);
-
-  if (data.includes("We cannot find your membership. Please try again")) {
-    throw new Error(bookingErrors.invalidStudentNo);
-  }
+  return result;
 };

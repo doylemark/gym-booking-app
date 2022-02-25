@@ -6,6 +6,7 @@ import Header from "../components/header";
 import ScheduledBookings from "../components/scheduled-bookings";
 import useInterval from "../hooks/use-interval";
 import {
+  bookGymSession,
   getAvailableDays,
   getSessionsFromPage,
   getToken,
@@ -67,7 +68,7 @@ const Home = () => {
     });
   }, []);
 
-  useInterval(() => {
+  useInterval(async () => {
     for (let item of Object.values(queue)) {
       (async () => {
         const d = new Date(data.days[activeDay] + "-" + item.time);
@@ -84,9 +85,16 @@ const Home = () => {
           }
 
           if (item.bookingLink) {
-            console.log("booking", item);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            const success = await bookGymSession(item.bookingLink, "21385593");
 
-            // bookGymSession(item.bookingLink, "21385593");
+            if (success) {
+              removeFromQueue(item);
+              console.log("success");
+            } else {
+              console.log("fail");
+            }
           }
         }
       })();

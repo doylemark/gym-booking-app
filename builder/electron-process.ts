@@ -17,6 +17,7 @@ export default class ElectronProgramManager {
       this.killProcess();
     } else {
       this.electronProcess = exec("electron .");
+      this.electronProcess.stdout?.pipe(process.stdout);
       this.logger.log(
         "warn",
         "Started process with PID: " + this.electronProcess?.pid ?? "unknown"

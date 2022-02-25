@@ -2,7 +2,7 @@
   "extends": "@doylemark/tsconfig/tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "../dist/builder"
+    "outDir": "../dist/builder",
   },
   "include": [
     "*.ts",
