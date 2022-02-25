@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { suspend } from "suspend-react";
+import toast from "react-hot-toast";
 
 import Bookings from "../components/bookings";
 import Header from "../components/header";
@@ -43,18 +44,17 @@ export const isBookable = (d: Date) =>
   d.getTime() < new Date().getTime() + threeHrs;
 
 const Home = () => {
-  const data = suspend(() => gymDataFetcher(defaultUrl), ["bookingState"], {
-    lifespan: 1 * 60000,
-  });
+  const data = suspend(() => gymDataFetcher(defaultUrl), ["bookingState"]);
 
   const [activeDay, setActiveDay] = useState(0);
   const [filter, setFilter] = useState<GymFilter>("Poolside Gym");
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [queue, setQueue] = useState<Record<string, Session>>({});
+  const [inProgressBooking, setInProgressBooking] = useState<string>();
 
-  const addToQueue = useCallback((s: Session) => {
-    setQueue((q) => ({ ...q, [s.id]: s }));
-  }, []);
+  useEffect(() => {
+    console.log(queue);
+  }, [data, queue]);
 
   const removeFromQueue = useCallback((s: Session) => {
     setQueue((q) => {
@@ -67,6 +67,41 @@ const Home = () => {
         }, {} as Record<string, Session>);
     });
   }, []);
+
+  const book = useCallback(
+    async (session: Session) => {
+      if (inProgressBooking === session.id || !session.bookingLink) return;
+
+      setInProgressBooking(session.id);
+
+      const success = await toast.promise(
+        bookGymSession(session.bookingLink, "21385593"),
+        {
+          loading: "Booking Session " + session.location,
+          error: "Failed to book session",
+          success: "Successfully booked session at " + session.location,
+        }
+      );
+
+      if (success) {
+        removeFromQueue(session);
+      }
+
+      setInProgressBooking(undefined);
+    },
+    [inProgressBooking, removeFromQueue]
+  );
+
+  const addToQueue = useCallback(
+    (s: Session) => {
+      setQueue((q) => ({ ...q, [s.id]: s }));
+
+      if (isBookable(new Date(`${data.days[activeDay]}-${s.time}`))) {
+        book(s);
+      }
+    },
+    [activeDay, book, data.days]
+  );
 
   useInterval(async () => {
     for (let item of Object.values(queue)) {
@@ -84,22 +119,11 @@ const Home = () => {
             item = updatedItem;
           }
 
-          if (item.bookingLink) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
-            const success = await bookGymSession(item.bookingLink, "21385593");
-
-            if (success) {
-              removeFromQueue(item);
-              console.log("success");
-            } else {
-              console.log("fail");
-            }
-          }
+          if (item.bookingLink) book(item);
         }
       })();
     }
-  }, 5000);
+  }, 15000);
 
   return (
     <div className="overflow-visible">

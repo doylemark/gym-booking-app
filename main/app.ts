@@ -10,6 +10,7 @@ const createWindow = () => {
     height: 700,
     webPreferences: {
       preload: join(__dirname, "preload/preload.js"),
+      backgroundThrottling: false,
     },
   });
 

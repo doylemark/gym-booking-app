@@ -91,7 +91,6 @@ export const bookGymSession = async (bookingUrl: string, studentNo: string) => {
     window.electron.onBookingResponse((args) => {
       const [success] = args;
       if (success) resolve(success as boolean);
-      console.log(success);
     });
 
     setTimeout(() => {
