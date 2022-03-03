@@ -75,7 +75,7 @@ const Home = () => {
       setInProgressBooking(session.id);
 
       const success = await toast.promise(
-        bookGymSession(session.bookingLink, "21385593"),
+        bookGymSession(session.bookingLink, ""), // TODO: Insert student number
         {
           loading: "Booking Session " + session.location,
           error: "Failed to book session",
